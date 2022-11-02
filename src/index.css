@@ -12,6 +12,10 @@
 
 @import url(./blocks/header/__logo/header__logo.css);
 
+@import url(./blocks/header/__button/header__button.css);
+
+@import url(./blocks/header/__paragraph/header__paragraph.css);
+
 
 
 @import url(./blocks/profile/profile.css);
@@ -93,4 +97,23 @@
 @import url(./blocks/popup/__img/popup__img.css);
 
 @import url(./blocks/popup/__caption/popup__caption.css);
+
+@import url(./blocks/popup/__registration-logo/popup__registration-logo.css);
+
+@import url(./blocks/popup/__title/_type/popup__title_type_registration.css);
+
+@import url(./blocks/popup/-registration/popup-registration.css);
+
+
+@import url(blocks/login/__form/login__form.css);
+
+@import url(blocks/login/__header/login__header.css);
+
+@import url(blocks/login/__input/login__input.css);
+
+@import url(blocks/login/__button/login__button.css);
+
+@import url(blocks/login/__caption/login__caption.css);
+
+@import url(blocks/login/__link/login__link.css);
 

@@ -1,5 +1,6 @@
 import React from "react";
 import {useEffect, useState} from "react";
+import {BrowserRouter, Redirect, Route, Switch, useHistory} from 'react-router-dom';
 import Header from "./Header";
 import Main from "./Main";
 import Footer from "./Footer";
@@ -11,6 +12,11 @@ import EditProfilePopup from "./EditProfilePopup";
 import EditAvatarPopup from "./EditAvatarPopup";
 import AddPlacePopup from "./AddPlacePopup";
 import ConfirmDeleteCardPopup from "./ConfirmDeleteCardPopup";
+import Register from "./Register";
+import Login from "./Login";
+import ProtectedRoute from "./ProtectedRoute";
+import * as auth from '../auth';
+import InfoTooltip from "./InfoTooltip";
 
 export default function App() {
 
@@ -20,11 +26,42 @@ export default function App() {
   const [isDeleteCardPopupOpen, setIsDeleteCardPopupOpen] = useState(false);
   const [selectedCard, setSelectedCard] = useState({});
   const [isServerErrorPopupOpen, setIsServerErrorPopupOpen] = useState(false);
+  const [isInfoTooltipOpen, setIsInfoTooltipOpen] = useState(false);
   const [serverError, setSeverError] = useState('');
   const [currentUser, setСurrentUser] = useState({});
   const [cards, setCards] = useState([]);
   const [selectedToDeleteCard, setSelectedToDeleteCard] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [currentEmail, setCurrentEmail] = useState('');
+  const [registrationSuccessful, setRegistrationSuccessful] = useState(false);
+  const [currentPathname, setCurrentPathname] = useState(window.location.pathname);
+
+  console.log(registrationSuccessful);
+
+  const [loggedIn, setLoggedIn] = useState(false);
+  const history = useHistory();
+
+  console.log('Cостояние loggedIn сразу после объявления:', loggedIn);
+
+  function handleTokenCheck() {
+    if (localStorage.getItem('jwt')) {
+      const jwt = localStorage.getItem('jwt');
+      auth.checkToken(jwt)
+        .then((res) => {
+          if (res) {
+            setLoggedIn(true);
+            console.log('Состояние loggedIn внутри функции handleTokenCheck:', loggedIn);
+            history.push('/main');
+            setCurrentEmail(res.data.email);
+          }
+        })
+    }
+  }
+
+  useEffect(() => {
+    handleTokenCheck();
+    console.log('Состояние loggedIn внутри useEffect:', loggedIn);
+  }, []);
 
   useEffect(() => {
     api.getUserInfo()
@@ -72,11 +109,16 @@ export default function App() {
     setIsServerErrorPopupOpen(true);
   }
 
+  function openInfoTooltip() {
+    setIsInfoTooltipOpen(true);
+  }
+
   function closeAllPopups() {
     setIsEditProfilePopupOpen(false);
     setIsAddPlacePopupOpen(false);
     setIsEditAvatarPopupOpen(false);
     setIsDeleteCardPopupOpen(false);
+    setIsInfoTooltipOpen(false);
     setSelectedCard({});
   }
 
@@ -185,21 +227,52 @@ export default function App() {
     setSelectedToDeleteCard(card);
   }
 
+  function handleLogin(state) {
+    setLoggedIn(state);
+  }
+
+  function setRegistrationState() {
+    setRegistrationSuccessful(true);
+  }
+
+  function handleCurrentPathname(path) {
+    setCurrentPathname(path);
+  }
+
   return (
 
     <CurrentUserContext.Provider value={currentUser}>
 
       <div className="App">
 
-        <Header/>
+        <Header email={currentEmail}
+                loggedIn={loggedIn}
+                handleLogin={handleLogin}
+                currentPathname={currentPathname}
+                handleCurrentPathname={handleCurrentPathname}/>
 
-        <Main onEditAvatar={handleEditAvatarClick}
-              onEditProfile={handleEditProfileClick}
-              onAddPlaceClick={handleAddPlaceClick}
-              onCardClick={handleCardClick}
-              cards={cards}
-              onCardLike={handleCardLike}
-              onCardDeleteClick={handleCardDeleteClick}/>
+        <Switch>
+          <ProtectedRoute path="/main"
+                          loggedIn={loggedIn}
+                          component={Main}
+                          onEditAvatar={handleEditAvatarClick}
+                          onEditProfile={handleEditProfileClick}
+                          onAddPlaceClick={handleAddPlaceClick}
+                          onCardClick={handleCardClick}
+                          cards={cards}
+                          onCardLike={handleCardLike}
+                          onCardDeleteClick={handleCardDeleteClick}/>
+          <Route path="/sign-in">
+            <Login handleLogin={handleLogin}/>
+          </Route>
+          <Route path="/sign-up">
+            <Register openInfoTooltip={openInfoTooltip}
+                      setRegistrationState={setRegistrationState}/>
+          </Route>
+          <Route exact path="/">
+            {loggedIn ? <Redirect to="/main"/> : <Redirect to="/sign-in"/>}
+          </Route>
+        </Switch>
 
         <Footer/>
 
@@ -232,6 +305,11 @@ export default function App() {
                               serverError={serverError}
                               onClick={closeServerErrorPopupPopup}
                               buttonText='Закрыть'/>
+
+        <InfoTooltip name="registration"
+                     isOpen={isInfoTooltipOpen}
+                     onClose={closeAllPopups}
+                     registrationSuccessful={registrationSuccessful}/>
 
       </div>
 

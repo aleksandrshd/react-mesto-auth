@@ -1,0 +1,7 @@
+.popup__registration-logo {
+    width: 120px;
+    height: 120px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    padding-bottom: 32px;
+}
