@@ -1,0 +1,11 @@
+.popup__container-registration {
+    display: flex;
+    flex-direction: column;
+    padding: 59px 66px 59px;
+}
+
+@media screen and (max-width: 568px) {
+    .popup__container-registration {
+        padding: 51px 15px;
+    }
+}

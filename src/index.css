@@ -104,6 +104,8 @@
 
 @import url(./blocks/popup/-registration/popup-registration.css);
 
+@import url(./blocks/popup/__container/popup__container-registration.css);
+
 
 @import url(blocks/login/__form/login__form.css);
 

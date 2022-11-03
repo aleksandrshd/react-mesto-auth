@@ -4,4 +4,11 @@
     background-size: contain;
     background-repeat: no-repeat;
     padding-bottom: 32px;
+    align-self: center;
+}
+
+@media screen and (max-width: 568px) {
+    .popup__registration-logo {
+        padding-bottom: 41px;
+    }
 }
