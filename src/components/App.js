@@ -1,6 +1,6 @@
 import React from "react";
-import {useEffect, useState} from "react";
-import {BrowserRouter, Redirect, Route, Switch, useHistory} from 'react-router-dom';
+import {useCallback, useEffect, useState} from "react";
+import {Redirect, Route, Switch} from 'react-router-dom';
 import Header from "./Header";
 import Main from "./Main";
 import Footer from "./Footer";
@@ -32,38 +32,73 @@ export default function App() {
   const [cards, setCards] = useState([]);
   const [selectedToDeleteCard, setSelectedToDeleteCard] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  const [currentEmail, setCurrentEmail] = useState('');
+  const [userDataAuth, setUserDataAuth] = useState({});
   const [registrationSuccessful, setRegistrationSuccessful] = useState(false);
-  const [currentPathname, setCurrentPathname] = useState(window.location.pathname);
-
-  console.log(registrationSuccessful);
-
   const [loggedIn, setLoggedIn] = useState(false);
-  const history = useHistory();
+  const [appLoading, setAppLoading] = useState(true);
 
-  console.log('Cостояние loggedIn сразу после объявления:', loggedIn);
-
-  function handleTokenCheck() {
-    if (localStorage.getItem('jwt')) {
+  const cbTokenCheck = useCallback(async () => {
+    try {
+      setAppLoading(true);
       const jwt = localStorage.getItem('jwt');
-      auth.checkToken(jwt)
-        .then((res) => {
-          if (res) {
-            setLoggedIn(true);
-            console.log('Состояние loggedIn внутри функции handleTokenCheck:', loggedIn);
-            history.push('/main');
-            setCurrentEmail(res.data.email);
-          }
-        })
-    }
-  }
+      if (!jwt) {
+        throw new Error('No token in storage');
+      }
+      const user = await auth.checkToken(jwt);
 
-  useEffect(() => {
-    handleTokenCheck();
-    console.log('Состояние loggedIn внутри useEffect:', loggedIn);
+      if (!user) {
+        throw new Error('Invalid user');
+      }
+      setLoggedIn(true);
+      setUserDataAuth(user.data);
+    } catch {
+    } finally {
+      setAppLoading(false);
+    }
+  }, []);
+
+  const cbAuthentiticate = useCallback(async (password, email) => {
+    try {
+      const data = await auth.authenticate(password, email);
+      if (!data) {
+        throw new Error('Invalid email or password');
+      }
+      if (data.token) {
+        setLoggedIn(true);
+        localStorage.setItem('jwt', data.token);
+        cbTokenCheck(); // для получения email пользователя
+      }
+    } catch {
+    }
+  }, []);
+
+  const cbRegister = useCallback(async (password, email) => {
+    try {
+      const data = await auth.register(password, email);
+      if (!data) {
+        throw new Error('Registration failed');
+      }
+      if (data) {
+        console.log('Регистрация успешна', data);
+        setRegistrationSuccessful(true);
+        setIsInfoTooltipOpen(true);
+      } else {
+        console.log('Регистрация не выполнена');
+        setIsInfoTooltipOpen(true);
+      }
+    } catch {
+    }
+  }, []);
+
+  const cbLogout = useCallback(() => {
+    localStorage.removeItem('jwt');
+    setLoggedIn(false);
+    setUserDataAuth({});
   }, []);
 
   useEffect(() => {
+    cbTokenCheck();
+
     api.getUserInfo()
 
       .then(userInfo => setСurrentUser(userInfo))
@@ -72,10 +107,6 @@ export default function App() {
         console.log(`${err}`);
         handleServerError(err);
       });
-
-  }, []);
-
-  useEffect(() => {
 
     api.getInitialCards()
 
@@ -87,6 +118,7 @@ export default function App() {
       });
 
   }, []);
+
 
   function handleEditAvatarClick() {
     setIsEditAvatarPopupOpen(true);
@@ -107,10 +139,6 @@ export default function App() {
   function handleServerError(err) {
     setSeverError(err);
     setIsServerErrorPopupOpen(true);
-  }
-
-  function openInfoTooltip() {
-    setIsInfoTooltipOpen(true);
   }
 
   function closeAllPopups() {
@@ -227,16 +255,8 @@ export default function App() {
     setSelectedToDeleteCard(card);
   }
 
-  function handleLogin(state) {
-    setLoggedIn(state);
-  }
-
-  function setRegistrationState() {
-    setRegistrationSuccessful(true);
-  }
-
-  function handleCurrentPathname(path) {
-    setCurrentPathname(path);
+  if (appLoading) {
+    return <div>Loading ...</div>
   }
 
   return (
@@ -244,12 +264,6 @@ export default function App() {
     <CurrentUserContext.Provider value={currentUser}>
 
       <div className="App">
-
-        <Header email={currentEmail}
-                loggedIn={loggedIn}
-                handleLogin={handleLogin}
-                currentPathname={currentPathname}
-                handleCurrentPathname={handleCurrentPathname}/>
 
         <Switch>
           <ProtectedRoute path="/main"
@@ -263,11 +277,22 @@ export default function App() {
                           onCardLike={handleCardLike}
                           onCardDeleteClick={handleCardDeleteClick}/>
           <Route path="/sign-in">
-            <Login handleLogin={handleLogin}/>
+            <Header userDataAuth={userDataAuth}
+                    loggedIn={loggedIn}
+                    onLogout={cbLogout}
+                    enterBtn={false}
+                    registerBtn={true}/>
+            <Login loggedIn={loggedIn}
+                   onLogin={cbAuthentiticate}/>
           </Route>
           <Route path="/sign-up">
-            <Register openInfoTooltip={openInfoTooltip}
-                      setRegistrationState={setRegistrationState}/>
+            <Header userDataAuth={userDataAuth}
+                    loggedIn={loggedIn}
+                    onLogout={cbLogout}
+                    enterBtn={true}
+                    registerBtn={false}/>
+            <Register registrationSuccessful={registrationSuccessful}
+                      onRegister={cbRegister}/>
           </Route>
           <Route exact path="/">
             {loggedIn ? <Redirect to="/main"/> : <Redirect to="/sign-in"/>}

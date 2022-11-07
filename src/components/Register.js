@@ -1,43 +1,33 @@
-import React, {useState} from "react";
-import * as auth from '../auth';
-import {Link, useHistory} from "react-router-dom";
+import React, {useCallback, useState} from "react";
+import {Link, Redirect} from "react-router-dom";
 
-export default function Register(props) {
+export default function Register({registrationSuccessful, onRegister}) {
 
-  const history = useHistory();
-
-  const [formValues, setFormValues] = useState({
+  const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
 
-  function handleInputChange(event) {
-    setFormValues(prevValues => ({
-      ...prevValues,
-      [event.target.name]: event.target.value
-    }));
-  }
+  const cbChange = useCallback((event) => {
+    const {name, value} = event.target;
+    setFormData({
+      ...formData,
+      [name]: value
+    });
+  }, [formData]);
 
-  function handleSubmit(event) {
+  const cbSubmit = useCallback((event) => {
     event.preventDefault();
-    console.log('SUBMIT formValues:', formValues);
-    auth.register(formValues.password, formValues.email)
-      .then((res) => {
-        if (res) {
-          console.log('Регистрация успешна', res);
-          props.openInfoTooltip();
-          props.setRegistrationState();
-          history.push('/sign-in');
-        } else {
-          console.log('Регистрация не выполнена');
-          props.openInfoTooltip();
-        }
-      })
+    onRegister(formData.password, formData.email);
+  }, [onRegister, formData]);
+
+  if (registrationSuccessful) {
+    return <Redirect to="/"/>
   }
 
   return (
     <form className="login__form"
-          onSubmit={handleSubmit}>
+          onSubmit={cbSubmit}>
       <h2 className="login__header">Регистрация</h2>
       <input className="login__input"
              type="email"
@@ -45,8 +35,8 @@ export default function Register(props) {
              placeholder="Email"
              minLength="2"
              required
-             value={formValues.email}
-             onChange={handleInputChange}/>
+             value={formData.email}
+             onChange={cbChange}/>
       <span></span>
       <input className="login__input"
              type="password"
@@ -54,12 +44,11 @@ export default function Register(props) {
              placeholder="Пароль"
              minLength="6"
              required
-             value={formValues.password}
-             onChange={handleInputChange}/>
+             value={formData.password}
+             onChange={cbChange}/>
       <span></span>
       <button className="login__button">Зарегистрироваться</button>
       <p className="login__caption">Уже зарегистрированы? <Link className="login__link" to="/sign-in">Войти</Link></p>
-
     </form>
 
   );

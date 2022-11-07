@@ -1,41 +1,32 @@
-import React, {useState} from "react";
-import {useHistory} from "react-router-dom";
-import * as auth from '../auth';
+import React, {useCallback, useState} from "react";
+import {Redirect} from "react-router-dom";
 
-export default function Login(props) {
+export default function Login({loggedIn, onLogin}) {
 
-  const history = useHistory();
-
-  const [formValues, setFormValues] = useState({
+  const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
 
-  function handleInputChange(event) {
-    setFormValues(prevValues => ({
-      ...prevValues,
-      [event.target.name]: event.target.value
-    }));
-    console.log(formValues);
-  }
+  const cbChange = useCallback((event) => {
+    const {name, value} = event.target;
+    setFormData({
+      ...formData,
+      [name]: value
+    });
+  }, [formData]);
 
-  function handleSubmit(event) {
+  const cbSubmit = useCallback((event) => {
     event.preventDefault();
-    console.log('SUBMIT signIn formValues:', formValues);
-    auth.authorize(formValues.password, formValues.email)
-      .then((data) => {
-        if (data.token) {
-          console.log('Вход выполнен', data.token);
-          props.handleLogin(true);
-          history.push('/main');
-        } else {
-          console.log('Вход не выполнен');
-        }
-      })
+    onLogin(formData.password, formData.email);
+  }, [onLogin, formData]);
+
+  if (loggedIn) {
+    return <Redirect to="/"/>;
   }
 
   return (
-    <form className="login__form" onSubmit={handleSubmit}>
+    <form className="login__form" onSubmit={cbSubmit}>
       <h2 className="login__header">Вход</h2>
       <input className="login__input"
              type="email"
@@ -43,8 +34,8 @@ export default function Login(props) {
              placeholder="Email"
              minLength="2"
              required
-             value={formValues.email}
-             onChange={handleInputChange}/>
+             value={formData.email}
+             onChange={cbChange}/>
       <span></span>
       <input className="login__input"
              type="password"
@@ -52,11 +43,10 @@ export default function Login(props) {
              placeholder="Пароль"
              minLength="6"
              required
-             value={formValues.password}
-             onChange={handleInputChange}/>
+             value={formData.password}
+             onChange={cbChange}/>
       <span></span>
       <button className="login__button">Войти</button>
     </form>
-
   );
 }

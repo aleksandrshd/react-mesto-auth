@@ -1,37 +1,17 @@
-import {useHistory} from "react-router-dom";
-import {useEffect, useState} from "react";
+import {Link} from "react-router-dom";
 
-export default function Header({email, loggedIn, handleLogin, currentPathname, handleCurrentPathname}) {
-
-  const history = useHistory();
-
-
-  function signOut() {
-    localStorage.removeItem('jwt');
-    handleLogin(false);
-    history.push('/sign-in');
-  }
-
-  function moveToSignIn () {
-    history.push('/sign-in');
-    handleCurrentPathname(window.location.pathname);
-  }
-
-  function moveToSignUp () {
-    history.push('/sign-up');
-    handleCurrentPathname(window.location.pathname);
-  }
-
+export default function Header({userDataAuth, loggedIn, onLogout, enterBtn, registerBtn}) {
+  console.log(userDataAuth);
   return (
     <header className="header">
 
       <div className="header__logo"></div>
-      {(currentPathname === '/sign-up') && <button className="header__button" onClick={moveToSignIn}>Войти</button> }
-      {(currentPathname === '/sign-in') && <button className="header__button" onClick={moveToSignUp}>Регистрация</button> }
-      {loggedIn && <div style={{display: 'flex', flexdirection: 'column', alignItems: 'start'}}>
-        <p className="header__paragraph">{email}</p>
+      {enterBtn && <Link style={{color: 'white', textDecoration: 'none'}} to="sign-in">Войти</Link> }
+      {registerBtn && <Link style={{color: 'white', textDecoration: 'none'}} to="sign-up">Регистрация</Link> }
+      {loggedIn && <div style={{display: 'flex', flexDirection: 'column', alignItems: 'start'}}>
+        <p className="header__paragraph">{userDataAuth.email}</p>
         <button className="header__button"
-                onClick={signOut}>
+                onClick={onLogout}>
           Выйти
         </button>
       </div>}
