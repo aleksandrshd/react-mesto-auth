@@ -125,3 +125,9 @@
 
 @import url(blocks/login/__error/login__error.css);
 
+@import url(blocks/not-found/not-found.css);
+
+@import url(blocks/not-found/__link/not-found__link.css);
+
+@import url(blocks/not-found/__image/not-found__image.css);
+

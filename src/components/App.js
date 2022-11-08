@@ -17,6 +17,7 @@ import Login from "./Login";
 import ProtectedRoute from "./ProtectedRoute";
 import * as auth from '../auth';
 import InfoTooltip from "./InfoTooltip";
+import PageNotFound from "./PageNotFound";
 
 export default function App() {
 
@@ -300,6 +301,9 @@ export default function App() {
           </Route>
           <Route exact path="/">
             {loggedIn ? <Redirect to="/main"/> : <Redirect to="/sign-in"/>}
+          </Route>
+          <Route path="*">
+            <PageNotFound/>
           </Route>
         </Switch>
 
