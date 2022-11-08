@@ -1,0 +1,6 @@
+.login__error {
+    color: red;
+    min-height: 20px;
+    font-size: 12px;
+    line-height: 15px;
+}

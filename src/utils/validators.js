@@ -1,3 +1,6 @@
+// регулярные выражения
+const regexEmail = /^(([^<>()[\].,;:\s@"]+(\.[^<>()[\].,;:\s@"]+)*)|(".+"))@(([^<>()[\].,;:\s@"]+\.)+[^<>()[\].,;:\s@"]{2,})$/iu;
+
 const validators = {
   name: {
     empty: (value) => {
@@ -21,7 +24,22 @@ const validators = {
     maxLength: (value) => {
       return value.length > 200;
     }
-  }
+  },
+
+  email: {
+    isEmail: (value) => {
+      return !regexEmail.test(String(value).toLowerCase());
+    }
+  },
+
+  password: {
+    empty: (value) => {
+      return value === '';
+    },
+    minLength: (value) => {
+      return value.length < 6;
+    }
+  },
 }
 
 export {validators};

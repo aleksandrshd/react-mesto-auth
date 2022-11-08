@@ -1,5 +1,13 @@
 .header__link {
     color: white;
     text-decoration: none;
-    margin-right: 30px;
+    font-size: 18px;
+    margin-top: 8px;
+}
+
+@media screen and (max-width: 568px) {
+    .header__link {
+        margin-right: 30px;
+        font-size: 14px;
+    }
 }

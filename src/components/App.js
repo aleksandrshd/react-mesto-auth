@@ -60,32 +60,34 @@ export default function App() {
   const cbAuthentiticate = useCallback(async (password, email) => {
     try {
       const data = await auth.authenticate(password, email);
-      if (!data) {
+      /*if (!data) {
         throw new Error('Invalid email or password');
-      }
+      }*/
       if (data.token) {
         setLoggedIn(true);
         localStorage.setItem('jwt', data.token);
         cbTokenCheck(); // для получения email пользователя
       }
-    } catch {
+    } catch (error) {
+      console.log(error);
+      handleServerError('Введен неверный логин или пароль.');
     }
   }, []);
 
   const cbRegister = useCallback(async (password, email) => {
     try {
       const data = await auth.register(password, email);
-      if (!data) {
-        throw new Error('Registration failed');
-      }
+      /*if (!data) {
+        throw new Error('Регистрация не выполнена');
+      }*/
+      console.log(data);
       if (data) {
         setRegistrationSuccessful(true);
         setIsInfoTooltipOpen(true);
-      } else {
-        console.log('Регистрация не выполнена');
-        setIsInfoTooltipOpen(true);
       }
-    } catch {
+    } catch (error) {
+      setIsInfoTooltipOpen(true);
+      console.log(error);
     }
   }, []);
 
@@ -115,6 +117,7 @@ export default function App() {
         console.log(`${err}`);
         handleServerError(err);
       });
+
 
   }, []);
 
@@ -255,7 +258,7 @@ export default function App() {
   }
 
   if (appLoading) {
-    return <div>Loading ...</div>
+    return <div style={{ display: 'flex', justifyContent: 'center', color: 'white'}}>Загрузка, подождите пожалуйста ...</div>
   }
 
   return (
