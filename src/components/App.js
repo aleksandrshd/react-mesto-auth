@@ -79,7 +79,6 @@ export default function App() {
         throw new Error('Registration failed');
       }
       if (data) {
-        console.log('Регистрация успешна', data);
         setRegistrationSuccessful(true);
         setIsInfoTooltipOpen(true);
       } else {
@@ -275,7 +274,9 @@ export default function App() {
                           onCardClick={handleCardClick}
                           cards={cards}
                           onCardLike={handleCardLike}
-                          onCardDeleteClick={handleCardDeleteClick}/>
+                          onCardDeleteClick={handleCardDeleteClick}
+                          userDataAuth={userDataAuth}
+                          onLogout={cbLogout}/>
           <Route path="/sign-in">
             <Header userDataAuth={userDataAuth}
                     loggedIn={loggedIn}
