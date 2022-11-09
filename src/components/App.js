@@ -81,7 +81,6 @@ export default function App() {
       /*if (!data) {
         throw new Error('Регистрация не выполнена');
       }*/
-      console.log(data);
       if (data) {
         setRegistrationSuccessful(true);
         setIsInfoTooltipOpen(true);
