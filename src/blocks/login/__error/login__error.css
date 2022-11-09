@@ -1,6 +1,14 @@
 .login__error {
-    color: red;
+    color: #ff6347;
     min-height: 20px;
     font-size: 12px;
     line-height: 15px;
+    width: 358px;
+    text-align: start;
+}
+
+@media screen and (max-width: 568px) {
+    .login__error {
+        width: 260px;
+    }
 }

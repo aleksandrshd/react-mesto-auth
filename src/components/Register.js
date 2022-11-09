@@ -9,6 +9,11 @@ export default function Register({registrationSuccessful, onRegister}) {
     password: ''
   });
 
+  const [formDataClicked, setFormDataClicked] = useState({
+    email: false,
+    password: false
+  });
+
   const [formErrors, setFormErrors] = useState({
     email: {
       isEmail: true
@@ -61,17 +66,17 @@ export default function Register({registrationSuccessful, onRegister}) {
 
   useEffect(() => {
 
-    if (formErrors.email.isEmail) {
+    if (formErrors.email.isEmail && formDataClicked.email) {
       setTextEmailError('Введите корректный email')
     } else setTextEmailError('');
 
-    if (formErrors.password.empty) {
+    if (formErrors.password.empty && formDataClicked.password) {
       setTextPasswordError('Введите пароль');
-    } else if (formErrors.password.minLength) {
+    } else if (formErrors.password.minLength && formDataClicked.password) {
       setTextPasswordError('Минимальная длина пароля 6 символов')
     } else setTextPasswordError('');
 
-  }, [formErrors]);
+  }, [formErrors, formDataClicked]);
 
   const cbChange = useCallback((event) => {
     const {name, value} = event.target;
@@ -80,6 +85,14 @@ export default function Register({registrationSuccessful, onRegister}) {
       [name]: value
     });
   }, [formData]);
+
+  const cbBlur = useCallback((event) => {
+    const name = event.target.name;
+    setFormDataClicked({
+      ...formDataClicked,
+      [name]: true
+    });
+  }, [formDataClicked, formData]);
 
   const cbSubmit = useCallback((event) => {
     event.preventDefault();
@@ -95,19 +108,21 @@ export default function Register({registrationSuccessful, onRegister}) {
           onSubmit={cbSubmit}
           noValidate>
       <h2 className="login__header">Регистрация</h2>
-      <input className="login__input"
+      <input className={`login__input ${(formErrors.email.isEmail && (formDataClicked.email || formData.email.length > 0)) ? 'login__input_type_invalid' : ''}`}
              type="email"
              name="email"
              placeholder="Email"
              value={formData.email}
-             onChange={cbChange}/>
+             onChange={cbChange}
+             onBlur={cbBlur}/>
       <span className="login__error">{textEmailError}</span>
-      <input className="login__input"
+      <input className={`login__input ${((formErrors.password.empty || formErrors.password.minLength) && (formDataClicked.password || formData.password.length > 0)) ? 'login__input_type_invalid' : ''}`}
              type="password"
              name="password"
              placeholder="Пароль"
              value={formData.password}
-             onChange={cbChange}/>
+             onChange={cbChange}
+             onBlur={cbBlur}/>
       <span className="login__error">{textPasswordError}</span>
       <button className="login__button" disabled={isInvalid}>Зарегистрироваться</button>
       <p className="login__caption">Уже зарегистрированы? <Link className="login__link" to="/sign-in">Войти</Link></p>

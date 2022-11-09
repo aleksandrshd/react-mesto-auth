@@ -1,5 +1,6 @@
 .header__button {
     background-color: transparent;
+    border: none;
     color: white;
     font-size: 18px;
     transition: opacity .4s linear;

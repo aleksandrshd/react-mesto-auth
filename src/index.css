@@ -117,6 +117,8 @@
 
 @import url(blocks/login/__input/login__input.css);
 
+@import url(blocks/login/__input/_type/login__input_type_invalid.css);
+
 @import url(blocks/login/__button/login__button.css);
 
 @import url(blocks/login/__caption/login__caption.css);
