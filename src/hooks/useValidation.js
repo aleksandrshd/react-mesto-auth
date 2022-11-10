@@ -1,5 +1,7 @@
 import React from "react";
 
+import {urlRegExp} from "../utils/constants";
+
 export default function useValidation(value, validations) {
 
   const [isEmptyError, setIsEmptyError] = React.useState(true);
@@ -21,7 +23,6 @@ export default function useValidation(value, validations) {
           value ? setIsEmptyError(false) : setIsEmptyError(true);
           break;
         case 'isUrl':
-          const urlRegExp = /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)$/;
           urlRegExp.test(String(value).toLowerCase()) ? setIsUrlError(false) : setIsUrlError(true);
           break;
       }

@@ -10,11 +10,7 @@ export default function AddPlacePopup({isOpen, onClose, onAddPlace, isLoading}) 
   const [formValid, setFormValid] = useState(false);
 
   useEffect(() => {
-    if (title.inputValid && link.inputValid) {
-      setFormValid(true);
-    } else {
-      setFormValid(false);
-    }
+    setFormValid(title.inputValid && link.inputValid);
   }, [title.inputValid, link.inputValid]);
 
   useEffect(() => {

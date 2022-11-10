@@ -1,23 +1,23 @@
-import React from "react";
-import {useCallback, useEffect, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {Redirect, Route, Switch} from 'react-router-dom';
+
 import Header from "./Header";
 import Main from "./Main";
 import Footer from "./Footer";
 import ImagePopup from "./ImagePopup";
 import PopupWithServerError from "./PopupWithServerError";
-import api from "../utils/Api";
-import {CurrentUserContext} from "../contexts/CurrentUserContext";
 import EditProfilePopup from "./EditProfilePopup";
 import EditAvatarPopup from "./EditAvatarPopup";
 import AddPlacePopup from "./AddPlacePopup";
 import ConfirmDeleteCardPopup from "./ConfirmDeleteCardPopup";
-import Register from "./Register";
-import Login from "./Login";
 import ProtectedRoute from "./ProtectedRoute";
-import * as auth from '../auth';
 import InfoTooltip from "./InfoTooltip";
 import PageNotFound from "./PageNotFound";
+
+import {CurrentUserContext} from "../contexts/CurrentUserContext";
+import api from "../utils/api";
+import * as auth from '../utils/auth';
+import AuthForm from "./AuthForm";
 
 export default function App() {
 
@@ -61,9 +61,6 @@ export default function App() {
   const cbAuthentiticate = useCallback(async (password, email) => {
     try {
       const data = await auth.authenticate(password, email);
-      /*if (!data) {
-        throw new Error('Invalid email or password');
-      }*/
       if (data.token) {
         setLoggedIn(true);
         localStorage.setItem('jwt', data.token);
@@ -78,9 +75,6 @@ export default function App() {
   const cbRegister = useCallback(async (password, email) => {
     try {
       const data = await auth.register(password, email);
-      /*if (!data) {
-        throw new Error('Регистрация не выполнена');
-      }*/
       if (data) {
         setRegistrationSuccessful(true);
         setIsInfoTooltipOpen(true);
@@ -99,27 +93,28 @@ export default function App() {
 
   useEffect(() => {
     cbTokenCheck();
-
-    api.getUserInfo()
-
-      .then(userInfo => setСurrentUser(userInfo))
-
-      .catch(err => {
-        console.log(`${err}`);
-        handleServerError(err);
-      });
-
-    api.getInitialCards()
-
-      .then(cards => setCards(cards))
-
-      .catch(err => {
-        console.log(`${err}`);
-        handleServerError(err);
-      });
-
-
   }, []);
+
+  useEffect(() => {
+
+    if (loggedIn) {
+
+      api.getUserInfo()
+        .then(userInfo => setСurrentUser(userInfo))
+        .catch(err => {
+          console.log(`${err}`);
+          handleServerError(err);
+        });
+
+      api.getInitialCards()
+        .then(cards => setCards(cards))
+        .catch(err => {
+          console.log(`${err}`);
+          handleServerError(err);
+        });
+    }
+
+  }, [loggedIn]);
 
 
   function handleEditAvatarClick() {
@@ -258,7 +253,8 @@ export default function App() {
   }
 
   if (appLoading) {
-    return <div style={{ display: 'flex', justifyContent: 'center', color: 'white'}}>Загрузка, подождите пожалуйста ...</div>
+    return <div style={{display: 'flex', justifyContent: 'center', color: 'white'}}>Загрузка, подождите пожалуйста
+      ...</div>
   }
 
   return (
@@ -286,8 +282,9 @@ export default function App() {
                     onLogout={cbLogout}
                     enterBtn={false}
                     registerBtn={true}/>
-            <Login loggedIn={loggedIn}
-                   onLogin={cbAuthentiticate}/>
+            <AuthForm loggedIn={loggedIn}
+                      onSubmit={cbAuthentiticate}
+                      isRegister={false}/>
           </Route>
           <Route path="/sign-up">
             <Header userDataAuth={userDataAuth}
@@ -295,8 +292,9 @@ export default function App() {
                     onLogout={cbLogout}
                     enterBtn={true}
                     registerBtn={false}/>
-            <Register registrationSuccessful={registrationSuccessful}
-                      onRegister={cbRegister}/>
+            <AuthForm registrationSuccessful={registrationSuccessful}
+                      onSubmit={cbRegister}
+                      isRegister={true}/>
           </Route>
           <Route exact path="/">
             {loggedIn ? <Redirect to="/main"/> : <Redirect to="/sign-in"/>}

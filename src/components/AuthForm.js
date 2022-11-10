@@ -1,8 +1,8 @@
 import React, {useCallback, useEffect, useState} from "react";
-import {Redirect} from "react-router-dom";
+import {Link, Redirect} from "react-router-dom";
 import {validators} from "../utils/validators";
 
-export default function Login({loggedIn, onLogin}) {
+export default function AuthForm({loggedIn, onSubmit, isRegister, registrationSuccessful}) {
 
   const [formData, setFormData] = useState({
     email: '',
@@ -96,10 +96,14 @@ export default function Login({loggedIn, onLogin}) {
 
   const cbSubmit = useCallback((event) => {
     event.preventDefault();
-    onLogin(formData.password, formData.email);
-  }, [onLogin, formData]);
+    onSubmit(formData.password, formData.email);
+  }, [onSubmit, formData]);
 
   if (loggedIn) {
+    return <Redirect to="/"/>;
+  }
+
+  if (registrationSuccessful) {
     return <Redirect to="/"/>;
   }
 
@@ -107,7 +111,7 @@ export default function Login({loggedIn, onLogin}) {
     <form className="login__form"
           onSubmit={cbSubmit}
           noValidate>
-      <h2 className="login__header">Вход</h2>
+      <h2 className="login__header">{`${isRegister ? 'Регистрация' : 'Вход'}`}</h2>
       <input
         className={`login__input ${(formErrors.email.isEmail && (formDataClicked.email || formData.email.length > 0)) ? 'login__input_type_invalid' : ''}`}
         type="email"
@@ -126,7 +130,8 @@ export default function Login({loggedIn, onLogin}) {
         onChange={cbChange}
         onBlur={cbBlur}/>
       <span className="login__error">{textPasswordError}</span>
-      <button className="login__button" disabled={isInvalid}>Войти</button>
+      <button className="login__button" disabled={isInvalid}>{`${isRegister ? 'Зарегистрироваться' : 'Войти'}`}</button>
+      {isRegister && <p className="login__caption">Уже зарегистрированы? <Link className="login__link" to="/sign-in">Войти</Link></p>}
     </form>
   );
 }
