@@ -1,6 +1,7 @@
-// регулярные выражения
+// регулярные выражения для валидаторов
 const regexEmail = /^(([^<>()[\].,;:\s@"]+(\.[^<>()[\].,;:\s@"]+)*)|(".+"))@(([^<>()[\].,;:\s@"]+\.)+[^<>()[\].,;:\s@"]{2,})$/iu;
 
+// валидаторы
 const validators = {
   name: {
     empty: (value) => {
@@ -42,4 +43,15 @@ const validators = {
   },
 }
 
-export {validators};
+// тексты ошибок валидации
+const textsOfErrors = {
+  email: {
+    isEmailTextError: 'Введите корректный email'
+  },
+  password: {
+    emptyTextError: 'Введите пароль',
+    minLengthTextError: 'Минимальная длина пароля 6 символов'
+  }
+}
+
+export {validators, textsOfErrors};
